@@ -1,1 +1,65 @@
-///
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Финансы – Самоцветы CRM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar"> ... </aside>
+        <main class="content">
+            <header class="topbar">
+                <h1><i class="fas fa-ruble-sign"></i> Финансы</h1>
+            </header>
+            <div class="tabs">
+                <button class="tab active" onclick="showFinanceTab('sales')">Продажи</button>
+                <button class="tab" onclick="showFinanceTab('expenses')">Траты</button>
+            </div>
+            <div id="salesTab" class="table-container">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3>Продажи</h3>
+                    <button class="btn-add" onclick="openSaleForm()"><i class="fas fa-plus"></i> Добавить</button>
+                </div>
+                <table id="salesTable"><thead><tr><th>Курс</th><th>Билетов</th><th>Сумма</th><th>Дата</th></tr></thead><tbody></tbody></table>
+            </div>
+            <div id="expensesTab" class="table-container hidden">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <h3>Траты</h3>
+                    <button class="btn-add" onclick="openExpenseForm()"><i class="fas fa-plus"></i> Добавить</button>
+                </div>
+                <table id="expensesTable"><thead><tr><th>Описание</th><th>Сумма</th><th>Дата</th></tr></thead><tbody></tbody></table>
+            </div>
+        </main>
+    </div>
+    <!-- Модалки -->
+    <div class="modal hidden" id="saleModal"> ... </div>
+    <div class="modal hidden" id="expenseModal"> ... </div>
+    <script src="js/admin.js"></script>
+    <script>
+        function showFinanceTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.table-container').forEach(c => c.classList.add('hidden'));
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+            event.target.classList.add('active');
+            if (tab === 'sales') loadSales();
+            else loadExpenses();
+        }
+        async function loadSales() {
+            const data = await api({ action: 'saleList' });
+            document.querySelector('#salesTable tbody').innerHTML = data.sales.map(s => `
+                <tr><td>${s.courseId}</td><td>${s.tickets}</td><td>${s.sum} ₽</td><td>${new Date(s.date).toLocaleDateString('ru-RU')}</td></tr>
+            `).join('');
+        }
+        async function loadExpenses() {
+            const data = await api({ action: 'expenseList' });
+            document.querySelector('#expensesTable tbody').innerHTML = data.expenses.map(e => `
+                <tr><td>${e.desc}</td><td>${e.amount} ₽</td><td>${new Date(e.date).toLocaleDateString('ru-RU')}</td></tr>
+            `).join('');
+        }
+        loadSales();
+    </script>
+</body>
+</html>
