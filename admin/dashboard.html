@@ -1,1 +1,73 @@
-///
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд – Самоцветы CRM</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Боковое меню -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://i.oneme.ru/i?r=BTE2sh_eZW7g8kugOdIm2NotLFLhNa0tc0_UaeuflAmBbaheFIFzMaeTRu44FG2MMX4" alt="Логотип">
+                <h2>Самоцветы CRM</h2>
+            </div>
+            <nav>
+                <a href="dashboard.html" class="active"><i class="fas fa-tachometer-alt"></i> Дашборд</a>
+                <a href="courses.html"><i class="fas fa-book"></i> Курсы</a>
+                <a href="clients.html"><i class="fas fa-users"></i> Клиенты</a>
+                <a href="finance.html"><i class="fas fa-ruble-sign"></i> Финансы</a>
+                <a href="settings.html"><i class="fas fa-cog"></i> Настройки</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+            </nav>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="content">
+            <header class="topbar">
+                <h1><i class="fas fa-chart-pie"></i> Дашборд</h1>
+                <button onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            </header>
+            <div class="stats-grid" id="statsGrid"></div>
+            <div class="chart-container">
+                <canvas id="incomeChart"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        // Загрузка данных дашборда
+        async function loadDashboard() {
+            const data = await api({ action: 'dashboard' });
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-value">${data.income || 0} ₽</div><div class="stat-label">Доход</div></div>
+                <div class="stat-card"><div class="stat-value">${data.expenses || 0} ₽</div><div class="stat-label">Расход</div></div>
+                <div class="stat-card"><div class="stat-value">${data.profit || 0} ₽</div><div class="stat-label">Прибыль</div></div>
+                <div class="stat-card"><div class="stat-value">${data.clientsCount || 0}</div><div class="stat-label">Клиенты</div></div>
+                <div class="stat-card"><div class="stat-value">${data.ticketsSold || 0}</div><div class="stat-label">Билетов</div></div>
+            `;
+            const ctx = document.getElementById('incomeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Нед 1', 'Нед 2', 'Нед 3', 'Нед 4'],
+                    datasets: [{
+                        label: 'Доход',
+                        data: [data.income*0.2, data.income*0.4, data.income*0.7, data.income],
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124,58,237,0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                }
+            });
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>
